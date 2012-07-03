@@ -129,9 +129,9 @@ Block.prototype.perform_match = function(pattern, replacement, data, callback) {
 
             data = data.replace(pattern, result);
         } else {
-            result = data.replace(pattern, replacement);
+            result = replacement.replace(/\$0/g, data);
 
-            data = result
+            data = result;
         }
     } else {
         if(match) {
