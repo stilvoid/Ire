@@ -91,25 +91,25 @@ Block.prototype.add_child = function(line) {
     this.children.push(new Block(line, this));
 };
 
-Block.prototype.perform_match = function(pattern, data, callback) {
+Block.prototype.perform_match = function(pattern, replacement, data, callback) {
     var block = this,
         match = pattern.exec(data);
 
     if(block.code.hasOwnProperty("replacement")) {
-        var replacement = match[0].replace(pattern, block.code.replacement).replace(/\$0/g, match[0]);
+        var result = match[0].replace(pattern, replacement).replace(/\$0/g, match[0]);
 
         if(block.code.flags.contains("n")) {
-            if(!num_expr_re.test(replacement)) {
-                console.error("Invalid expression:", replacement);
+            if(!num_expr_re.test(result)) {
+                console.error("Invalid expression:", result);
                 process.exit(1);
             }
 
-            replacement = eval(replacement);
+            result = eval(result);
         }
 
-        data = data.substring(0, match.index) + replacement + data.substring(match.index + match[0].length);
+        data = data.substring(0, match.index) + result + data.substring(match.index + match[0].length);
 
-        match = replacement;
+        match = result;
     } else {
         match = match[0];
     }
@@ -196,23 +196,23 @@ Block.prototype.execute = function(data, by_ref, callback) {
 
         if(block.code.flags.contains("r")) {
             rl.question("", function(chunk) {
+                var replacement = block.code.replacement.replace(/\$\-/g, chunk.replace(/[\r\n]+$/, ""));
+
                 rl.pause();
 
-                chunk = chunk.replace(/[\r\n]+$/, "");
-
                 if(DEBUG) {
-                    console.log("STDIN:", chunk + ".");
+                    console.log("STDIN:", replacement + ".");
                 }
 
-                if(block.code.match.test(chunk)) {
+                if(block.code.match.test(data)) {
                     if(block.code.flags.contains("o")) {
                         callback(data);
                     } else {
-                        block.perform_match(block.code.match, chunk, callback);
+                        block.perform_match(block.code.match, replacement, data, callback);
                     }
                 } else {
                     if(block.code.flags.contains("o")) {
-                        block.perform_match(/^.*$/, chunk, callback);
+                        block.perform_match(/^.*$/, replacement, data, callback);
                     } else {
                         callback(data);
                     }
@@ -223,11 +223,11 @@ Block.prototype.execute = function(data, by_ref, callback) {
                 if(block.code.flags.contains("o")) {
                     callback(data);
                 } else{
-                    block.perform_match(block.code.match, data, callback);
+                    block.perform_match(block.code.match, block.code.replacement, data, callback);
                 }
             } else {
                 if(block.code.flags.contains("o")) {
-                    block.perform_match(/^.*$/, data, callback);
+                    block.perform_match(/^.*$/, block.code.replacement, data, callback);
                 } else{
                     callback(data);
                 }

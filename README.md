@@ -66,7 +66,7 @@ A command can be in one of three formats:
     * apply the `regexp` case-insensitively
 
 * `r` - read
-    * match from standard input
+    * read a line from standard input and make it available in the replacement string as $-
 
 * `o` - opposite
     * count as a match only if `regexp` does not match the data string
