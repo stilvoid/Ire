@@ -147,7 +147,7 @@ Block.prototype.perform_match = function(pattern, replacement, data, callback) {
 
     // Now the actions
     if(block.code.flags.contains("p")) {
-        console.log(result);
+        process.stdout.write(result);
     }
 
     block.execute_children(data, callback);
@@ -222,13 +222,16 @@ Block.prototype.execute = function(data, by_ref, callback) {
         }
 
         if(block.code.flags.contains("r")) {
-            rl.question("", function(chunk) {
+            rl.resume();
+            
+            rl.on("line", function(chunk) {
                 var replacement = block.code.replacement;
                 if(replacement) {
                     replacement = replacement.replace(/\$\-/g, chunk.replace(/[\r\n]+$/, ""));
                 }
 
                 rl.pause();
+                rl.removeAllListeners("line");
 
                 if(DEBUG) {
                     console.log("STDIN:", replacement + ".");
