@@ -1,4 +1,5 @@
 var fs = require("fs");
+var readline = require("readline");
 
 var Block = require("./block");
 var pp = require("./pp");
@@ -79,17 +80,19 @@ if(DEBUG) {
 
 // Execute the code!
 
-function callback(){
-    if(!process.stdin.isTTY && process.stdin.readable) {
-        main.execute("", false, callback);
-    } else {
-        if(DEBUG) {
-            console.log("EOL");
-        }
+if(process.stdin.isTTY) {
+    // Interactive mode
+    main.execute("");
+} else {
+    // Loop over stdin
+    var rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
-        // Close now and don't allow stdin to overflow
-        process.exit(0);
-    }
-};
-
-main.execute("", false, callback);
+    rl.on("line", function(line) {
+        main.execute(line, false, function() {
+            rl.resume();
+        });
+    });
+}
