@@ -1,0 +1,12 @@
+# Obligatory hello world example
+
+//Hello, world/p
+
+>goodbye
+    //(Goodbye got called)/pt
+
+    /Hello/Goodbye/
+
+<goodbye>
+
+//pw
