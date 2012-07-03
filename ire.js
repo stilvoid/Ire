@@ -1,3 +1,5 @@
+#!/usr/bin/env node 
+
 var fs = require("fs");
 var readline = require("readline");
 
@@ -93,12 +95,14 @@ if(process.stdin.isTTY) {
     // Loop over stdin
     var rl = readline.createInterface({
         input: process.stdin,
-        output: process.stdout
+        output: process.stdin
     });
 
     rl.on("line", function(line) {
+        rl.pause();
+
         main.execute(line, false, function() {
-            rl.resume();
+            rl.pause();
         });
     });
 }
