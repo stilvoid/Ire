@@ -103,14 +103,26 @@ Block.prototype.add_child = function(line) {
 
 Block.prototype.perform_match = function(pattern, replacement, data, callback) {
     var block = this,
-        match = pattern.exec(data),
+        match,
         result;
+
+    pattern.lastIndex = 0;
+
+    match = pattern.exec(data);
 
     if(replacement) {
         if(match) {
             replacement = replacement.replace(/\$0/g, match[0]);
 
+            if(DEBUG) {
+                console.log("REPL:", replacement);
+            }
+
             result = match[0].replace(pattern, replacement);
+
+            if(DEBUG) {
+                console.log("RESULT:", result);
+            }
 
             if(block.code.flags.contains("n")) {
                 if(!num_expr_re.test(result)) {
