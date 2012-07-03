@@ -1,0 +1,7 @@
+//What's your name?/p
+
+//r
+
+/steve/Nice name!/ipt
+
+/steve/Hello, $0/iopt
