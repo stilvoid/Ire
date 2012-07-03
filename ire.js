@@ -93,10 +93,19 @@ Block.prototype.add_child = function(line) {
 
 Block.prototype.perform_match = function(pattern, replacement, data, callback) {
     var block = this,
-        match = pattern.exec(data);
+        match = pattern.exec(data),
+        result;
 
-    if(block.code.hasOwnProperty("replacement")) {
-        var result = match[0].replace(pattern, replacement).replace(/\$0/g, match[0]);
+    if(replacement) {
+        if(match) {
+            replacement = replacement.replace(/\$0/g, match[0]);
+
+            result = match[0].replace(pattern, replacement);
+        } else {
+            result = data.replace(pattern, replacement);
+        }
+
+        data = data.replace(pattern, replacement);
 
         if(block.code.flags.contains("n")) {
             if(!num_expr_re.test(result)) {
@@ -106,21 +115,17 @@ Block.prototype.perform_match = function(pattern, replacement, data, callback) {
 
             result = eval(result);
         }
-
-        data = data.substring(0, match.index) + result + data.substring(match.index + match[0].length);
-
-        match = result;
     } else {
-        match = match[0];
+        result = match[0];
     }
 
     if(block.code.flags.contains("w")) {
-        match = data;
+        result = data;
     }
 
     // Now the actions
     if(block.code.flags.contains("p")) {
-        console.log(match);
+        console.log(result);
     }
 
     block.execute_children(data, callback);
