@@ -10,7 +10,7 @@
     /^-/
         //Crap, no more beer :(/pt
 
-    /^[^-]/
+    /^-/o
         <sing>
 
 <sing>
