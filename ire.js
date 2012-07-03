@@ -78,4 +78,18 @@ if(DEBUG) {
 }
 
 // Execute the code!
-main.execute("");
+
+function callback(){
+    if(!process.stdin.isTTY && process.stdin.readable) {
+        main.execute("", false, callback);
+    } else {
+        if(DEBUG) {
+            console.log("EOL");
+        }
+
+        // Close now and don't allow stdin to overflow
+        process.exit(0);
+    }
+};
+
+main.execute("", false, callback);
