@@ -67,7 +67,6 @@ function format(code) {
             if(DEBUG) {
                 console.log("INDT:", indent);
             }
-        }
 
             // See if we need to ascend
             while(!indent_re.test(code)) {
