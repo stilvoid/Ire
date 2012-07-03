@@ -196,7 +196,10 @@ Block.prototype.execute = function(data, by_ref, callback) {
 
         if(block.code.flags.contains("r")) {
             rl.question("", function(chunk) {
-                var replacement = block.code.replacement.replace(/\$\-/g, chunk.replace(/[\r\n]+$/, ""));
+                var replacement = block.code.replacement;
+                if(replacement) {
+                    replacement = replacement.replace(/\$\-/g, chunk.replace(/[\r\n]+$/, ""));
+                }
 
                 rl.pause();
 
