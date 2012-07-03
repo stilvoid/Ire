@@ -34,6 +34,22 @@ function action_filter(a) {
     return !re_flags.contains(a);
 }
 
+var literals = [
+    [/\\n/g, "\n"],
+    [/\\r/g, "\r"],
+    [/\\t/g, "\t"]
+];
+
+function make_literal(string) {
+    var out = string;
+
+    literals.forEach(function(literal) {
+        out = out.replace(literal[0], literal[1]);
+    });
+
+    return out;
+}
+
 var refs = {};
 
 function Block(line, parent_block) {
@@ -67,7 +83,7 @@ function Block(line, parent_block) {
             this.code.flags = parts[parts.length - 1].split("");
             
             if(parts.length > 2) {
-                this.code.replacement = parts[1];
+                this.code.replacement = make_literal(parts[1]);
             }
         }
 
