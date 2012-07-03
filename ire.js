@@ -117,22 +117,28 @@ Block.prototype.perform_match = function(pattern, replacement, data, callback) {
             replacement = replacement.replace(/\$0/g, match[0]);
 
             result = match[0].replace(pattern, replacement);
-        } else {
-            result = data.replace(pattern, replacement);
-        }
 
-        data = data.replace(pattern, replacement);
+            if(block.code.flags.contains("n")) {
+                if(!num_expr_re.test(result)) {
+                    console.error("Invalid expression:", result);
+                    process.exit(1);
+                }
 
-        if(block.code.flags.contains("n")) {
-            if(!num_expr_re.test(result)) {
-                console.error("Invalid expression:", result);
-                process.exit(1);
+                result = eval(result);
             }
 
-            result = eval(result);
+            data = data.replace(pattern, result);
+        } else {
+            result = data.replace(pattern, replacement);
+
+            data = result
         }
     } else {
-        result = match[0];
+        if(match) {
+            result = match[0];
+        } else {
+            result = data;
+        }
     }
 
     if(block.code.flags.contains("w")) {
