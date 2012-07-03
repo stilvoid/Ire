@@ -1,11 +1,17 @@
 var fs = require("fs");
+var readline = require("readline");
 
 if(process.argv.length < 3) {
     console.error("Missing filename");
     process.exit(1);
 }
 
-process.stdin.setEncoding("utf8");
+var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.pause();
 
 var DEBUG=false;
 
@@ -145,6 +151,10 @@ Block.prototype.execute = function(data, by_ref, callback) {
         if(DEBUG) {
             console.log("EOL");
         }
+
+        // Close now and don't allow stdin to overflow
+        rl.close();
+        process.exit(0);
     };
 
     if(DEBUG) {
@@ -185,14 +195,11 @@ Block.prototype.execute = function(data, by_ref, callback) {
         }
 
         if(block.code.flags.contains("r")) {
-            process.stdin.resume();
+            rl.question("", function(chunk) {
+                rl.pause();
 
-            process.stdin.on("data", function(chunk) {
                 chunk = chunk.replace(/[\r\n]+$/, "");
 
-                process.stdin.removeAllListeners("data");
-                process.stdin.pause();
-                
                 if(DEBUG) {
                     console.log("STDIN:", chunk + ".");
                 }
