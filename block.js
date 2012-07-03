@@ -221,7 +221,7 @@ Block.prototype.execute = function(data, by_ref, callback) {
             rl.on("line", function(chunk) {
                 var replacement = block.code.replacement;
                 if(replacement) {
-                    replacement = replacement.replace(/\$\-/g, chunk + "\n");
+                    replacement = replacement.replace(/\$\-/g, chunk);
                 }
 
                 rl.pause();
