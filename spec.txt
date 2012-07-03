@@ -1,0 +1,19 @@
+>name					start a block called "name"
+<name>					include the block called "name"
+SEP					any character except > or <
+SET match				match with regexp match
+SEP match SEP flags			match and apply flags
+SEP match SEP replacement SEP flags	match, replace, and apply flags
+
+flags:
+g	global
+i	insensitive
+m	multi-line
+
+p	print
+o	match from input
+r	repeat block
+e	exit block
+w	treat regex as ^.*ORIGINAL.*$
+t	only apply the replacement for this block
+n   treat replacement as a numeric expression
