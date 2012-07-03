@@ -1,0 +1,16 @@
+{
+    "author": "Steve Engledow <steve@offend.me.uk> (http://offend.me.uk)",
+    "name": "ire",
+    "description": "A regular expression scripting language",
+    "keywords": ["regex", "regexp", "regular", "expression", "script", "scripting", "language"],
+    "version": "0.0.1",
+    "homepage": "http://offend.me.uk/code/other/ire/",
+    "engines": {
+        "node": "*"
+    },
+    "bin": {
+        "ire": "ire.js"
+    },
+    "main": "ire.js",
+    "dependencies": {}
+}
