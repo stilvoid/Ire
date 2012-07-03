@@ -70,6 +70,7 @@ A command can be in one of three formats:
 
 * `o` - opposite
     * count as a match only if `regexp` does not match the data string
+    * (Note: if used with a replacement, the whole data string will be replaced. $0 will refer to the original value)
 
 #### Not yet implemented/tested flags
 * `e` - exit
