@@ -17,7 +17,7 @@ function get_statement(code) {
         // Try to get a command
         separator = code[0];
 
-        pattern = "^(#.*?(?:(?:#.*?)?#[a-z]+)?)[ \\t]*([\\n;]|$)";
+        pattern = "^(#.*?(?:(?:#.*?)?#[a-z]+)?)[ \\t]*([\\n{};]|$)";
         pattern = pattern.replace(/#/, separator);
         pattern = new RegExp(pattern);
 
@@ -51,6 +51,10 @@ function format(code) {
         if(/^\s*\{/.test(code)) {
             brackets++;
             code = code.replace(/^\s*\{\s*/m, "");
+
+            if(DEBUG) {
+                console.log("Bracket up");
+            }
         }
 
         // If we're in a bracket, just strip whitespace
@@ -59,9 +63,15 @@ function format(code) {
 
             while(/^\}/.test(code)) {
                 brackets--;
-                code = code.replace(/^\}\s+/m, "");
+                code = code.replace(/^\}\s*/m, "");
+
+                if(DEBUG) {
+                    console.log("Bracket down");
+                }
             }
-        } else {
+        }
+
+        if(brackets === 0) {
             indent_re = new RegExp("^" + indent.join(""));
 
             if(DEBUG) {
