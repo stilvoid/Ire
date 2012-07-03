@@ -4,11 +4,32 @@
 
 A sort of scripting language thingy based around regular expressions
 
+## Installation
+
+    npm install -g ire
+
+
+## Usage
+
+You can run a script from a file with:
+
+    ire myscript.ire
+
+Or you can pass a script in with the `-e` option:
+
+    ire -e '//Hello, world\n/p'
+
+If you add the `-p` flag, ire will print the data line at the end of the script. This is useful when using ire in pipe such as:
+
+    cat /proc/cpuinfo | ire -p -e '/\s*:\s*/ = /'
+
 ## Syntax
 
-Ire expects a single statement per line
+Ire programs are made up of blocks of statements.
 
-Statements can be indented after another statement to show dependency or grouping.
+Statements can be indented after another statement to show dependency or grouping. If you prefer, you can group statements by using { and }.
+
+While inside a group using { and }, you cannot use indentation to show grouping but you can use semicolons to separate statements as well as newlines.
 
 A statement can be either:
 
@@ -21,6 +42,10 @@ A statement can be either:
     >myref
         # some code to run
         # if myref is later imported
+
+Or
+
+    >mref { #some code to run ; # if myref is later imported }
 
 To give a name to a block of code, use a reference marker. The code under the marker will not be executed immediately, but can be called by an include statement
 
@@ -47,6 +72,9 @@ A command can be in one of three formats:
 `flags` is a string of letters each of which modifies the behaviour of either the `regexp` or `replacement` or performs an action.
 
 #### List of currently supported flags
+* `g` - global
+    * apply the `replacement` as many times as the `regexp` can be made to match
+
 * `p` - print
     * print the result to standard output
 
@@ -79,9 +107,6 @@ A command can be in one of three formats:
 * `l` - loop
     * repeat block
 
-* `g` - global
-    * apply the `replacement` as many times as the `regexp` can be made to match
-
 * `m` - multi-line
     * treat new-line characters as white-space
 
@@ -101,8 +126,8 @@ Programs start off with an empty data string. The simple program above works by 
 If you were to include this as part of a larger program, you would want:
 
     # Print out "Hello, world"
-    //Hello, world/btp
+    //Hello, world/tp
 
-The `b` means that the entire data string is replaced by "Hello, world" and the `t` means that the change is not permanent and only applies for this line.
+The `t` means that the change is not permanent and only applies for this line.
 
 Note that the comment line (`# print out "Hello, world"`) is actually also a command. It uses `#` as it's separator and then looks for something that matches ` Print out "Hello, world"`. Even if the data string did happen to match, it doesn't perform any action on it so it effectively gets ignored.
