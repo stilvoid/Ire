@@ -91,7 +91,7 @@ function Block(line, parent_block) {
             }
         }
 
-        this.code.match = new RegExp(parts[0], this.code.flags.filter(re_filter));
+        this.code.match = new RegExp(parts[0], this.code.flags.filter(re_filter).join(""));
 
         this.code.flags = this.code.flags.filter(action_filter);
     }
