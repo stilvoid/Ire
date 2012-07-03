@@ -17,7 +17,7 @@ function get_statement(code) {
         // Try to get a command
         separator = code[0];
 
-        pattern = "^(#.*?(?:(?:#.*?)?#[a-z]+)?)[ \\t]*([\\n{};]|$)";
+        pattern = "^(#.*(?:(?:#.*)?#[a-z]+)?)[ \\t]*([\\n{};]|$)";
         pattern = pattern.replace(/#/, separator);
         pattern = new RegExp(pattern);
 
