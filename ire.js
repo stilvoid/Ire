@@ -6,7 +6,7 @@ var pp = require("./pp");
 
 var DEBUG=false;
 
-var code, i;
+var code, i, addprint = false;
 
 // Handle options
 for(i=0; i<process.argv.length; i++) {
@@ -14,6 +14,8 @@ for(i=0; i<process.argv.length; i++) {
         i++;
 
         code = process.argv[i];
+    } else if(/^--?p/.test(process.argv[i])) {
+        addprint = true;
     }
 }
 
@@ -24,6 +26,10 @@ if(!code) {
     } else {
         code = fs.readFileSync(process.argv[process.argv.length - 1], "utf8");
     }
+}
+
+if(addprint) {
+    code += "\n//pw";
 }
 
 // Run code through the preprocessor
