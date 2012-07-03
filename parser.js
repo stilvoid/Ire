@@ -83,75 +83,115 @@ Block.prototype.add_child = function(line) {
     this.children.push(new Block(line, this));
 };
 
-Block.prototype.execute = function(data, by_ref) {
+Block.prototype.perform_match = function(data, callback) {
+    var match = this.code.match.exec(data);
+
+    if(this.code.hasOwnProperty("replacement")) {
+        var replacement = match[0].replace(this.code.match, this.code.replacement);
+
+        if(this.code.flags.contains("n")) {
+            if(!num_expr_re.test(replacement)) {
+                console.error("Invalid expression:", replacement);
+                process.exit(1);
+            }
+
+            replacement = eval(replacement);
+        }
+
+        data = data.substring(0, match.index) + replacement + data.substring(match.index + match[0].length);
+
+        match = replacement;
+    } else {
+        match = match[0];
+    }
+
+    if(this.code.flags.contains("w")) {
+        match = data;
+    }
+
+    // Now the actions
+    if(this.code.flags.contains("p")) {
+        console.log(match);
+    }
+
+    this.execute_children(data, callback);
+};
+
+Block.prototype.execute_children = function(data, callback) {
+    for(var i=0; i<this.children.length; i++) {
+        (function(child) {
+            var old_callback = callback;
+
+            callback = function(d) {
+                child.execute(d, false, old_callback);
+            };
+        }(this.children[this.children.length - i - 1]));
+    }
+
+    callback(data);
+};
+
+Block.prototype.execute = function(data, by_ref, callback) {
     var do_children = false;
-    var new_data = data;
+
+    var old_callback = callback;
+
+    callback = callback || function(){
+        if(DEBUG) {
+            console.log("EOL");
+        }
+    };
 
     if(DEBUG) {
         console.log("LINE:", this.line);
     }
 
+    // Handle temporary data
+    if(this.code.flags.contains("t")) {
+        callback = function() {
+            old_callback(data);
+        };
+    }
+
     if(this.code.hasOwnProperty("ref")) {
         if(by_ref) {
-            do_children = true;
+            if(DEBUG) {
+                console.log("Call: ", this.code.ref);
+            }
+
+            this.execute_children(data, callback);
+        } else {
+            if(DEBUG) {
+                console.log("Skip");
+            }
+
+            callback(data);
         }
     } else if(this.code.hasOwnProperty("import_ref")) {
-        new_data = refs[this.code.import_ref].execute(data, true);
+        if(DEBUG) {
+            console.log("Incl:", this.code.import_ref);
+        }
+
+        refs[this.code.import_ref].execute(data, true, callback);
     } else {
         if(DEBUG) {
             this.print(false, "Exec: ");
         }
 
-        var match = this.code.match.exec(data);
+        if(this.code.match.test(data)) {
+            if(this.code.flags.contains("o")) {
+                process.stdin.on("data", function(data) {
+                    process.stdin.removeAllListeners("data");
 
-        if(match) {
-            do_children = true;
-
-            if(this.code.hasOwnProperty("replacement")) {
-                var replacement = match[0].replace(this.code.match, this.code.replacement);
-
-                if(this.code.flags.contains("n")) {
-                    if(!num_expr_re.test(replacement)) {
-                        console.error("Invalid expression:", replacement);
-                        process.exit(1);
-                    }
-
-                    replacement = eval(replacement);
-                }
-
-                new_data = new_data.substring(0, match.index) + replacement + new_data.substring(match.index + match[0].length);
-
-                match = replacement;
+                    this.perform_match(data, callback);
+                });
             } else {
-                match = match[0];
+                this.perform_match(data, callback);
             }
-
-            if(this.code.flags.contains("w")) {
-                match = new_data;
-            }
-
-            if(DEBUG) {
-                console.log("Operating on:", match);
-            }
-
-            // Now the actions
-            if(this.code.flags.contains("p")) {
-                console.log(match);
-            }
+        } else {
+            callback(data);
         }
     }
-
-    if(do_children) {
-        this.children.forEach(function(child) {
-            new_data = child.execute(new_data);
-        });
-    }
-
-    if(this.code.flags.contains("t")) {
-        new_data = data;
-    }
-
-    return new_data;
 };
 
 Block.prototype.print = function(recursive, indent) {
