@@ -4,6 +4,10 @@
     "description": "A regular expression scripting language",
     "keywords": ["regex", "regexp", "regular", "expression", "script", "scripting", "language"],
     "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:stilvoid/ire.git"
+    },
     "homepage": "http://offend.me.uk/code/other/ire/",
     "engines": {
         "node": "*"
