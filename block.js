@@ -107,8 +107,14 @@ Block.prototype.perform_match = function(pattern, replacement, data, callback) {
         result;
 
     pattern.lastIndex = 0;
-
     match = pattern.exec(data);
+    pattern.lastIndex = 0;
+
+    if(DEBUG) {
+        console.log("DATA:", data);
+        console.log("PATT:", pattern);
+        console.log("MATCH:", match);
+    }
 
     if(replacement) {
         if(match) {
@@ -119,6 +125,7 @@ Block.prototype.perform_match = function(pattern, replacement, data, callback) {
             }
 
             result = match[0].replace(pattern, replacement);
+            pattern.lastIndex = 0;
 
             if(DEBUG) {
                 console.log("RESULT:", result);
@@ -225,6 +232,9 @@ Block.prototype.execute = function(data, by_ref, callback) {
         if(DEBUG) {
             block.print(false, "Exec: ");
             console.log("With data:", data);
+
+            console.log("FIND:", block.code.match, block.code.match.test(data));
+            block.code.match.lastIndex = 0;
         }
 
         if(block.code.flags.contains("r")) {
