@@ -1,9 +1,9 @@
 # Obligatory hello world example
 
-//Hello, world/p
+//Hello, world\n/p
 
 >goodbye
-    //(Goodbye got called)/pt
+    //(Goodbye got called)\n/pt
 
     /Hello/Goodbye/
 

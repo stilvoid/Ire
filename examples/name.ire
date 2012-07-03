@@ -1,7 +1,7 @@
-//What's your name?/p
+//What's your name? /pt
 
 //$-/br
 
-/steve/Nice name!/ipt
+/steve/Nice name!\n/ipt
 
-/steve/Hello, $0/iopt
+/steve/Hello, $0\n/iopt

@@ -1,6 +1,6 @@
 # 10 bottles
 
-//10 bottles of beer on the wall.../b
+//10 bottles of beer on the wall...\n/b
 
 >sing
     //pw
@@ -8,7 +8,7 @@
     /^(\d+)/$1 - 1/n
 
     /^-/
-        //Crap, no more beer :(/pt
+        //Crap, no more beer :(\n/pt
 
     /^-/o
         <sing>
