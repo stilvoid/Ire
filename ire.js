@@ -7,8 +7,6 @@ var DEBUG=false;
 
 var code, i;
 
-console.log(process.argv);
-
 // Handle options
 for(i=0; i<process.argv.length; i++) {
     if(/^--?e/.test(process.argv[i])) {
