@@ -51,13 +51,25 @@ A command can be in one of three formats:
     * print the result to standard output
 
 * `w` - whole
-    * treat `regexp` as if it started with `^.*` and ended with `.*$` (i.e. match the whole of the data)
+    * actions perform on the entire data string, not just the part that matched
+
+* `b` - bound
+    * treat `regexp` as if it started with `^.*` and ended with `.*$` (i.e. match the whole of the data) - implies `w`
 
 * `t` - temporary
     * only apply the `replacement` for this block
 
 * `n` - numeric
     * treat `replacement` as a numeric expression and evaluate it
+
+* `i` - insensitive
+    * apply the `regexp` case-insensitively
+
+* `r` - read
+    * match from standard input
+
+* `o` - opposite
+    * count as a match only if `regexp` does not match the data string
 
 #### Not yet implemented/tested flags
 * `e` - exit
@@ -69,14 +81,8 @@ A command can be in one of three formats:
 * `g` - global
     * apply the `replacement` as many times as the `regexp` can be made to match
 
-* `i` - insensitive
-    * apply the `regexp` case-insensitively
-
 * `m` - multi-line
     * treat new-line characters as white-space
-
-* `r` - read
-    * match from standard input
 
 ## Examples
 

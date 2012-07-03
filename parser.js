@@ -5,6 +5,8 @@ if(process.argv.length < 3) {
     process.exit(1);
 }
 
+process.stdin.setEncoding("utf8");
+
 var DEBUG=false;
 
 var label_re=/^>.+/;
@@ -83,13 +85,14 @@ Block.prototype.add_child = function(line) {
     this.children.push(new Block(line, this));
 };
 
-Block.prototype.perform_match = function(data, callback) {
-    var match = this.code.match.exec(data);
+Block.prototype.perform_match = function(pattern, data, callback) {
+    var block = this,
+        match = pattern.exec(data);
 
-    if(this.code.hasOwnProperty("replacement")) {
-        var replacement = match[0].replace(this.code.match, this.code.replacement);
+    if(block.code.hasOwnProperty("replacement")) {
+        var replacement = match[0].replace(pattern, block.code.replacement).replace(/\$0/g, match[0]);
 
-        if(this.code.flags.contains("n")) {
+        if(block.code.flags.contains("n")) {
             if(!num_expr_re.test(replacement)) {
                 console.error("Invalid expression:", replacement);
                 process.exit(1);
@@ -105,36 +108,38 @@ Block.prototype.perform_match = function(data, callback) {
         match = match[0];
     }
 
-    if(this.code.flags.contains("w")) {
+    if(block.code.flags.contains("w")) {
         match = data;
     }
 
     // Now the actions
-    if(this.code.flags.contains("p")) {
+    if(block.code.flags.contains("p")) {
         console.log(match);
     }
 
-    this.execute_children(data, callback);
+    block.execute_children(data, callback);
 };
 
 Block.prototype.execute_children = function(data, callback) {
-    for(var i=0; i<this.children.length; i++) {
+    var block = this,
+        i;
+
+    for(var i=0; i<block.children.length; i++) {
         (function(child) {
             var old_callback = callback;
 
             callback = function(d) {
                 child.execute(d, false, old_callback);
             };
-        }(this.children[this.children.length - i - 1]));
+        }(block.children[block.children.length - i - 1]));
     }
 
     callback(data);
 };
 
 Block.prototype.execute = function(data, by_ref, callback) {
-    var do_children = false;
-
-    var old_callback = callback;
+    var block=this,
+        old_callback = callback;
 
     callback = callback || function(){
         if(DEBUG) {
@@ -143,23 +148,23 @@ Block.prototype.execute = function(data, by_ref, callback) {
     };
 
     if(DEBUG) {
-        console.log("LINE:", this.line);
+        console.log("LINE:", block.line);
     }
 
     // Handle temporary data
-    if(this.code.flags.contains("t")) {
+    if(block.code.flags.contains("t")) {
         callback = function() {
             old_callback(data);
         };
     }
 
-    if(this.code.hasOwnProperty("ref")) {
+    if(block.code.hasOwnProperty("ref")) {
         if(by_ref) {
             if(DEBUG) {
-                console.log("Call: ", this.code.ref);
+                console.log("Call: ", block.code.ref);
             }
 
-            this.execute_children(data, callback);
+            block.execute_children(data, callback);
         } else {
             if(DEBUG) {
                 console.log("Skip");
@@ -167,58 +172,90 @@ Block.prototype.execute = function(data, by_ref, callback) {
 
             callback(data);
         }
-    } else if(this.code.hasOwnProperty("import_ref")) {
+    } else if(block.code.hasOwnProperty("import_ref")) {
         if(DEBUG) {
-            console.log("Incl:", this.code.import_ref);
+            console.log("Incl:", block.code.import_ref);
         }
 
-        refs[this.code.import_ref].execute(data, true, callback);
+        refs[block.code.import_ref].execute(data, true, callback);
     } else {
         if(DEBUG) {
-            this.print(false, "Exec: ");
+            block.print(false, "Exec: ");
+            console.log("With data:", data);
         }
 
-        if(this.code.match.test(data)) {
-            if(this.code.flags.contains("o")) {
-                process.stdin.on("data", function(data) {
-                    process.stdin.removeAllListeners("data");
+        if(block.code.flags.contains("r")) {
+            process.stdin.resume();
 
-                    this.perform_match(data, callback);
-                });
-            } else {
-                this.perform_match(data, callback);
-            }
+            process.stdin.on("data", function(chunk) {
+                chunk = chunk.replace(/[\r\n]+$/, "");
+
+                process.stdin.removeAllListeners("data");
+                process.stdin.pause();
+                
+                if(DEBUG) {
+                    console.log("STDIN:", chunk + ".");
+                }
+
+                if(block.code.match.test(chunk)) {
+                    if(block.code.flags.contains("o")) {
+                        callback(data);
+                    } else {
+                        block.perform_match(block.code.match, chunk, callback);
+                    }
+                } else {
+                    if(block.code.flags.contains("o")) {
+                        block.perform_match(/^.*$/, chunk, callback);
+                    } else {
+                        callback(data);
+                    }
+                }
+            });
         } else {
-            callback(data);
+            if(block.code.match.test(data)) {
+                if(block.code.flags.contains("o")) {
+                    callback(data);
+                } else{
+                    block.perform_match(block.code.match, data, callback);
+                }
+            } else {
+                if(block.code.flags.contains("o")) {
+                    block.perform_match(/^.*$/, data, callback);
+                } else{
+                    callback(data);
+                }
+            }
         }
     }
 };
 
 Block.prototype.print = function(recursive, indent) {
+    var block = this;
+
     indent = indent || "";
 
     var line = indent;
 
-    if(this.code.hasOwnProperty("import_ref")) {
-        line += "IMPORT " + this.code.import_ref;
-    } else if(this.code.hasOwnProperty("ref")) {
-        line += "REF " + this.code.ref;
+    if(block.code.hasOwnProperty("import_ref")) {
+        line += "IMPORT " + block.code.import_ref;
+    } else if(block.code.hasOwnProperty("ref")) {
+        line += "REF " + block.code.ref;
     } else {
-        line += this.code.match.source;
+        line += block.code.match.source;
         
-        if(this.code.hasOwnProperty("replacement")) {
-            line += " -> " + this.code.replacement;
+        if(block.code.hasOwnProperty("replacement")) {
+            line += " -> " + block.code.replacement;
         }
 
-        if(this.code.flags.length > 0) {
-            line += " (" + this.code.flags.join(", ") + ")";
+        if(block.code.flags.length > 0) {
+            line += " (" + block.code.flags.join(", ") + ")";
         }
     }
 
     console.log(line);
 
     if(recursive) {
-        this.children.forEach(function(child) {
+        block.children.forEach(function(child) {
             child.print(true, indent + "\t");
         });
     }
