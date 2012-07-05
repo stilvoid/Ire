@@ -8,7 +8,7 @@ var pp = require("./pp");
 
 var DEBUG=false;
 
-var code, i, addprint = false;
+var code = null, i, addprint = false;
 
 // Handle options
 for(i=0; i<process.argv.length; i++) {
@@ -21,7 +21,7 @@ for(i=0; i<process.argv.length; i++) {
     }
 }
 
-if(!code) {
+if(code === null) {
     if(process.argv.length < 3) {
         console.error("Missing filename");
         process.exit(1);
