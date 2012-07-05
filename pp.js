@@ -42,6 +42,8 @@ function format(code) {
 
     var statement;
 
+    code = code.trim();
+
     while(code.length > 0) {
         if(DEBUG) {
             console.log("CODE:", JSON.stringify(code));
