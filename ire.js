@@ -33,7 +33,7 @@ if(code === null) {
 }
 
 if(addprint) {
-    code += "\n//pw";
+    code += "\n//$0\\n/btp";
 }
 
 // Run code through the preprocessor
@@ -102,6 +102,8 @@ if(process.stdin.isTTY) {
 
     rl.on("line", function(line) {
         rl.pause();
+
+        line = line.replace(/\n$/, "");
 
         main.execute(line, false, function() {
             rl.pause();
