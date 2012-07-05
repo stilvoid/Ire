@@ -8,25 +8,27 @@ var pp = require("./pp");
 
 var DEBUG=false;
 
-var code = null, i, addprint = false;
+var code = null, i, addprint = false, filename;
 
 // Handle options
-for(i=0; i<process.argv.length; i++) {
+for(i=2; i<process.argv.length; i++) {
     if(/^--?e/.test(process.argv[i])) {
         i++;
 
         code = process.argv[i];
     } else if(/^--?p/.test(process.argv[i])) {
         addprint = true;
+    } else {
+        filename = process.argv[i];
     }
 }
 
 if(code === null) {
-    if(process.argv.length < 3) {
+    if(filename) {
+        code = fs.readFileSync(process.argv[process.argv.length - 1], "utf8");
+    } else {
         console.error("Missing filename");
         process.exit(1);
-    } else {
-        code = fs.readFileSync(process.argv[process.argv.length - 1], "utf8");
     }
 }
 
