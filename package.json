@@ -3,7 +3,7 @@
     "name": "ire",
     "description": "A regular expression scripting language",
     "keywords": ["regex", "regexp", "regular", "expression", "script", "scripting", "language"],
-    "version": "0.0.3",
+    "version": "0.0.4",
     "repository": {
         "type": "git",
         "url": "git@github.com:stilvoid/ire.git"
