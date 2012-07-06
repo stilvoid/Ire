@@ -82,6 +82,10 @@ code.forEach(function(line) {
     main.add_child(line);
 });
 
+while(main.parent_block !== null) {
+    main = main.parent_block;
+}
+
 if(DEBUG) {
     console.log("Main");
     main.print(true);
