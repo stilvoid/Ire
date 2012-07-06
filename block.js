@@ -116,7 +116,7 @@ Block.prototype.perform_match = function(pattern, replacement, data, callback) {
         console.log("MATCH:", match);
     }
 
-    if(replacement) {
+    if(typeof(replacement) === "string") {
         if(match) {
             replacement = replacement.replace(/\$0/g, match[0]);
 
@@ -242,7 +242,7 @@ Block.prototype.execute = function(data, by_ref, callback) {
             
             rl.on("line", function(chunk) {
                 var replacement = block.code.replacement;
-                if(replacement) {
+                if(typeof(replacement) === "string") {
                     replacement = replacement.replace(/\$\-/g, chunk);
                 }
 
